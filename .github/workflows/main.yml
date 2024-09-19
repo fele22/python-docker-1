@@ -1,11 +1,28 @@
-from fastapi import FastAPI
-import json, os
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+name: FastAPI run 
 
-# Initialize FastAPI app
-app = FastAPI()
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
-@app.get("/")
-async def test():
-    return {"message": "OK"}
+jobs:
+  fastapi-run:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+
+      - name: Install Backend Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
+
+      - name: Start Backend Server
+        run: uvicorn main:app --reload &
